@@ -48,6 +48,7 @@ export interface ReportRow {
 export interface ClassAverage {
   subjectId: number;
   average: number | null;
+  median: number | null;
   gradeCount: number;
 }
 

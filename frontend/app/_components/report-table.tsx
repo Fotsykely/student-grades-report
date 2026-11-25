@@ -65,6 +65,18 @@ export function ReportTable({ report }: { report: Report }) {
               })}
               <td colSpan={3} />
             </tr>
+            <tr>
+              <th scope="row" className={`${CELL} font-semibold`}>Médiane de la classe</th>
+              {report.subjects.map((subject) => {
+                const median = classAverageBySubject.get(subject.id)?.median;
+                return (
+                  <td key={subject.id} className={NUMBER_CELL}>
+                    {median == null ? <Missing label="Aucune note" /> : <span className="font-semibold">{formatAverage(median)}</span>}
+                  </td>
+                );
+              })}
+              <td colSpan={3} />
+            </tr>
           </tfoot>
         </table>
       </div>
