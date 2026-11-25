@@ -1,15 +1,15 @@
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
-using Testcontainers.PostgreSql;
+using Testcontainers.MySql;
 
 namespace Api.Tests;
 
-// Starts a throwaway PostgreSQL container (Docker must be running) and points the API at it.
-// A real PostgreSQL is used on purpose: the migrations are specific to Npgsql, so SQLite or the
+// Starts a throwaway MySQL container (Docker must be running) and points the API at it.
+// A real MySQL is used on purpose: the migrations are specific to the MySQL provider, so SQLite or the
 // in-memory provider would not exercise the same schema.
 public class ApiFactory : WebApplicationFactory<Program>, IAsyncLifetime
 {
-    private readonly PostgreSqlContainer _database = new PostgreSqlBuilder("postgres:17").Build();
+    private readonly MySqlContainer _database = new MySqlBuilder("mysql:8.4").Build();
 
     // Explicit implementations: WebApplicationFactory already has its own ValueTask-returning DisposeAsync.
     Task IAsyncLifetime.InitializeAsync() => _database.StartAsync();

@@ -3,7 +3,7 @@ using Api.Dtos;
 using Api.Entities;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Npgsql;
+using MySql.Data.MySqlClient;
 
 namespace Api.Controllers;
 
@@ -11,6 +11,9 @@ namespace Api.Controllers;
 [Route("api/grades")]
 public class GradesController(AppDbContext db) : ControllerBase
 {
+    // MySQL error 1062: duplicate entry for a unique index.
+    private const int MySqlDuplicateEntry = 1062;
+
     private const string DuplicateMessage =
         "Une note existe déjà pour cet étudiant dans cette matière. Modifiez-la depuis la liste des notes.";
 
@@ -58,7 +61,7 @@ public class GradesController(AppDbContext db) : ControllerBase
         {
             await db.SaveChangesAsync(cancellationToken);
         }
-        catch (DbUpdateException ex) when (ex.InnerException is PostgresException { SqlState: PostgresErrorCodes.UniqueViolation })
+        catch (DbUpdateException ex) when (ex.InnerException is MySqlException { Number: MySqlDuplicateEntry })
         {
             // Two requests raced past the check above: the unique index has the last word.
             return ValidationError(nameof(GradeRequestDto.SubjectId), DuplicateMessage);

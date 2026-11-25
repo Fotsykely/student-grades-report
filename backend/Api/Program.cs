@@ -10,7 +10,7 @@ var connectionString = builder.Configuration.GetConnectionString("Default")
     ?? throw new InvalidOperationException(
         "Missing connection string: set ConnectionStrings:Default (see the README).");
 
-builder.Services.AddDbContext<AppDbContext>(options => options.UseNpgsql(connectionString));
+builder.Services.AddDbContext<AppDbContext>(options => options.UseMySQL(connectionString));
 builder.Services.AddControllers();
 builder.Services.AddOpenApi();
 

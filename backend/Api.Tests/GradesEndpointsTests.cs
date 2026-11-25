@@ -3,8 +3,10 @@ using System.Net.Http.Json;
 using System.Text.Json;
 using Api.Data;
 using Api.Dtos;
+using Api.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using MySql.Data.MySqlClient;
 
 namespace Api.Tests;
 
@@ -93,6 +95,25 @@ public class GradesEndpointsTests : IAsyncLifetime
         await AssertValidationErrorAsync(response, "SubjectId");
         var kept = await _client.GetFromJsonAsync<GradeDto>($"/api/grades/{first.Id}");
         Assert.Equal(10m, kept!.Value);
+    }
+
+    [Fact]
+    public async Task Database_rejects_a_duplicate_with_the_error_the_controller_recognises()
+    {
+        // The controller checks for a duplicate first; this is the safety net for two requests racing.
+        // GradesController relies on this exact exception shape (MySQL error 1062) to answer 400.
+        await using var first = _factory.Services.CreateAsyncScope();
+        await using var second = _factory.Services.CreateAsyncScope();
+        var firstDb = first.ServiceProvider.GetRequiredService<AppDbContext>();
+        var secondDb = second.ServiceProvider.GetRequiredService<AppDbContext>();
+
+        firstDb.Grades.Add(new Grade { StudentId = Hery, SubjectId = Maths, Value = 10m });
+        await firstDb.SaveChangesAsync();
+        secondDb.Grades.Add(new Grade { StudentId = Hery, SubjectId = Maths, Value = 11m });
+
+        var error = await Assert.ThrowsAsync<DbUpdateException>(() => secondDb.SaveChangesAsync());
+        var mysqlError = Assert.IsType<MySqlException>(error.InnerException);
+        Assert.Equal(1062, mysqlError.Number);
     }
 
     [Fact]

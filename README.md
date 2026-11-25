@@ -2,7 +2,7 @@
 
 Application de **notes et de moyennes** pour un enseignant : il saisit les notes de sa classe et obtient un bulletin avec la moyenne pondérée, la mention et le rang de chaque étudiant, ainsi que la moyenne de la classe pour chaque matière.
 
-Construite à partir du template [next-dotnet-template](https://github.com/Fotsykely/next-dotnet-template) : **Next.js 16** (front), **ASP.NET Core / .NET 10** (API) et **PostgreSQL**.
+Construite à partir du template [next-dotnet-template](https://github.com/Fotsykely/next-dotnet-template) : **Next.js 16** (front), **ASP.NET Core / .NET 10** (API) et **MySQL 8.4**.
 
 - **Étudiants** : Hery, Voahangy, Tiana, Mamy, Lalaina, Fanja.
 - **Matières (coefficient)** : Mathématiques (3), Informatique (3), Anglais (2), Gestion (1).
@@ -66,7 +66,7 @@ docker compose up -d
 
 ```bash
 cd backend/Api
-dotnet user-secrets set "ConnectionStrings:Default" "Host=localhost;Port=5433;Database=grades;Username=grades;Password=change-me"
+dotnet user-secrets set "ConnectionStrings:Default" "Server=localhost;Port=3307;Database=grades;User=grades;Password=change-me"
 dotnet run                  # http://localhost:5080
 ```
 
@@ -88,21 +88,21 @@ Documentation interactive de l'API (en développement) : <http://localhost:5080/
 ## Tests
 
 ```bash
-cd backend && dotnet test                  # Docker doit tourner : Testcontainers lance un PostgreSQL jetable
+cd backend && dotnet test                  # Docker doit tourner : Testcontainers lance un MySQL jetable
 cd frontend && npm run lint && npm test    # ESLint, puis Vitest
 cd frontend && npm run build               # API_BASE_URL doit être définie (voir .env.local) et l'API doit tourner
 ```
 
 - `ReportCalculatorTests` (sans base) : moyenne pondérée, bornes des mentions, étudiant incomplet, ex æquo, arrondi avant mention, moyennes de classe.
-- `GradesEndpointsTests` et `ReportEndpointsTests` (PostgreSQL réel) : validation des notes, doublon refusé, filtre par matière, modification, suppression, bulletin de bout en bout.
+- `GradesEndpointsTests` et `ReportEndpointsTests` (MySQL réel) : validation des notes, doublon refusé, filtre par matière, modification, suppression, bulletin de bout en bout.
 - Vitest : client d'API, formats d'affichage, lecture des décimales saisies.
 
-Les tests de l'API utilisent un vrai PostgreSQL et non SQLite ou le fournisseur en mémoire : les migrations sont propres à Npgsql.
+Les tests de l'API utilisent un vrai MySQL et non SQLite ou le fournisseur en mémoire : les migrations sont propres au fournisseur MySQL.
 
 ## Architecture
 
 ```
-Navigateur ──► Next.js (:3000) ──► API ASP.NET Core (:5080) ──► PostgreSQL (:5433)
+Navigateur ──► Next.js (:3000) ──► API ASP.NET Core (:5080) ──► MySQL (:3307)
 ```
 
 Seul le serveur Next.js parle à l'API : pas de CORS à configurer, et l'URL de l'API (`API_BASE_URL`, sans préfixe `NEXT_PUBLIC_`) n'arrive jamais dans le navigateur.
@@ -157,6 +157,8 @@ Les erreurs non gérées et les statuts nus (404, 405…) répondent en `Problem
 - Pas d'authentification : n'importe qui ayant accès à l'application peut saisir des notes. Pas de CORS (inutile tant que seul le serveur Next appelle l'API).
 - Étudiants et matières fixes : en ajouter demande une migration.
 - Après une suppression, la liste revient sur toutes les matières (le filtre n'est pas conservé).
-- Pas de CI ni de Dockerfiles : Docker ne sert qu'à PostgreSQL.
+- Pas de CI ni de Dockerfiles : Docker ne sert qu'à MySQL.
+- Fournisseur EF Core : le paquet officiel d'Oracle (`MySql.EntityFrameworkCore`), car Pomelo n'avait pas encore de version stable pour EF Core 10. Il fournit l'erreur MySQL 1062 (doublon) que l'API intercepte, voir `GradesController`.
+- La base est passée de PostgreSQL à MySQL : si vous aviez un `.env` de l'ancienne version, recopiez `.env.example` (les variables sont désormais `MYSQL_*`). Les anciennes données PostgreSQL restent dans l'ancien volume Docker `grades-data`, elles ne sont pas migrées.
 - Les types du front sont écrits à la main ; la réponse de l'API est typée par un cast `as T` à un seul endroit (`client.ts`), sans validation à l'exécution.
 - Conventions : identifiants et commentaires en anglais, textes affichés à l'utilisateur en français, commits en [Conventional Commits](https://www.conventionalcommits.org/).
