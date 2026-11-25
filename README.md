@@ -50,6 +50,8 @@ Une moyenne de 11,996 est arrondie à 12,00 : elle vaut donc « Assez bien ».
 
 **Moyenne de la classe par matière.** Moyenne des notes qui existent pour la matière : les notes manquantes sont ignorées, pas comptées comme des zéros. Le nombre de notes prises en compte est affiché (« 12,25 — 2 notes »). Sans aucune note, la case affiche « — ».
 
+**Médiane de la classe par matière.** Affichée sous la moyenne, sur les mêmes notes (les notes manquantes sont ignorées). On trie les notes : avec un nombre impair de notes, c'est la note du milieu ; avec un nombre pair, c'est la moyenne des deux notes du milieu, arrondie à 2 décimales (10 et 11,25 donnent 10,63). Avec une seule note, la médiane est cette note. Sans aucune note, la case affiche « — ». La médiane se lit mieux que la moyenne quand une note très basse ou très haute tire la moyenne (4, 5 et 19 : moyenne 9,33, médiane 5).
+
 Le bulletin est **calculé à la demande** à partir des notes : aucune moyenne, mention ou rang n'est stocké, donc rien ne peut devenir périmé après une modification ou une suppression.
 
 ## Lancer le projet
@@ -94,7 +96,7 @@ cd frontend && npm run lint && npm test    # ESLint, puis Vitest
 cd frontend && npm run build               # API_BASE_URL doit être définie (voir .env.local) et l'API doit tourner
 ```
 
-- `ReportCalculatorTests` (sans base) : moyenne pondérée, bornes des mentions, étudiant incomplet, ex æquo, arrondi avant mention, moyennes de classe.
+- `ReportCalculatorTests` (sans base) : moyenne pondérée, bornes des mentions, étudiant incomplet, ex æquo, arrondi avant mention, moyennes et médianes de classe (nombre pair ou impair, une seule note, aucune note).
 - `GradesEndpointsTests` et `ReportEndpointsTests` (MySQL réel) : validation des notes, doublon refusé, filtre par matière, modification, suppression, bulletin de bout en bout.
 - Vitest : client d'API, formats d'affichage, lecture des décimales saisies.
 
