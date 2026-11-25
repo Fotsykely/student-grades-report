@@ -1,5 +1,6 @@
-import { formatAverage, formatGrade, formatGradeCount, formatRank, MENTION_LABELS } from "@/lib/format";
+import { formatAverage, formatGradeCount, formatRank, MENTION_LABELS } from "@/lib/format";
 import type { Report, ReportRow } from "@/lib/api-client/types";
+import { GradeValue, PASS_MARK } from "@/components/grade-value";
 
 const CELL = "px-4 py-3";
 const NUMBER_CELL = `${CELL} text-right`;
@@ -15,56 +16,61 @@ export function ReportTable({ report }: { report: Report }) {
   }
 
   return (
-    <div className="overflow-x-auto rounded-lg border border-border bg-surface shadow-sm">
-      <table className="w-full text-left">
-        <caption className="sr-only">
-          Bulletin de la classe : notes par matière, moyenne pondérée, mention et rang de chaque étudiant
-        </caption>
-        <thead className="border-b border-border bg-background text-sm">
-          <tr>
-            <th scope="col" className={`${CELL} font-semibold`}>Étudiant</th>
-            {report.subjects.map((subject) => (
-              <th key={subject.id} scope="col" className={`${NUMBER_CELL} font-semibold`}>
-                {subject.name}
-                <span className="block font-normal text-muted-foreground">coef. {subject.coefficient}</span>
-              </th>
+    <div className="space-y-2">
+      <div className="overflow-x-auto rounded-lg border border-border bg-surface shadow-sm">
+        <table className="w-full text-left">
+          <caption className="sr-only">
+            Bulletin de la classe : notes par matière, moyenne pondérée, mention et rang de chaque étudiant
+          </caption>
+          <thead className="border-b border-border bg-background text-sm">
+            <tr>
+              <th scope="col" className={`${CELL} font-semibold`}>Étudiant</th>
+              {report.subjects.map((subject) => (
+                <th key={subject.id} scope="col" className={`${NUMBER_CELL} font-semibold`}>
+                  {subject.name}
+                  <span className="block font-normal text-muted-foreground">coef. {subject.coefficient}</span>
+                </th>
+              ))}
+              <th scope="col" className={`${NUMBER_CELL} font-semibold`}>Moyenne</th>
+              <th scope="col" className={`${CELL} font-semibold`}>Mention</th>
+              <th scope="col" className={`${NUMBER_CELL} font-semibold`}>Rang</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            {report.rows.map((row) => (
+              <StudentRow key={row.studentId} row={row} tied={row.rank !== null && (studentsPerRank.get(row.rank) ?? 0) > 1} />
             ))}
-            <th scope="col" className={`${NUMBER_CELL} font-semibold`}>Moyenne</th>
-            <th scope="col" className={`${CELL} font-semibold`}>Mention</th>
-            <th scope="col" className={`${NUMBER_CELL} font-semibold`}>Rang</th>
-          </tr>
-        </thead>
+          </tbody>
 
-        <tbody>
-          {report.rows.map((row) => (
-            <StudentRow key={row.studentId} row={row} tied={row.rank !== null && (studentsPerRank.get(row.rank) ?? 0) > 1} />
-          ))}
-        </tbody>
-
-        <tfoot className="border-t border-border bg-primary-subtle">
-          <tr>
-            <th scope="row" className={`${CELL} font-semibold`}>Moyenne de la classe</th>
-            {report.subjects.map((subject) => {
-              const classAverage = classAverageBySubject.get(subject.id);
-              return (
-                <td key={subject.id} className={NUMBER_CELL}>
-                  {classAverage?.average == null ? (
-                    <Missing label="Aucune note" />
-                  ) : (
-                    <>
-                      <span className="font-semibold">{formatAverage(classAverage.average)}</span>
-                      <span className="block text-sm text-muted-foreground">
-                        {formatGradeCount(classAverage.gradeCount)}
-                      </span>
-                    </>
-                  )}
-                </td>
-              );
-            })}
-            <td colSpan={3} />
-          </tr>
-        </tfoot>
-      </table>
+          <tfoot className="border-t border-border bg-primary-subtle">
+            <tr>
+              <th scope="row" className={`${CELL} font-semibold`}>Moyenne de la classe</th>
+              {report.subjects.map((subject) => {
+                const classAverage = classAverageBySubject.get(subject.id);
+                return (
+                  <td key={subject.id} className={NUMBER_CELL}>
+                    {classAverage?.average == null ? (
+                      <Missing label="Aucune note" />
+                    ) : (
+                      <>
+                        <span className="font-semibold">{formatAverage(classAverage.average)}</span>
+                        <span className="block text-sm text-muted-foreground">
+                          {formatGradeCount(classAverage.gradeCount)}
+                        </span>
+                      </>
+                    )}
+                  </td>
+                );
+              })}
+              <td colSpan={3} />
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+      <p className="text-sm text-muted-foreground">
+        <span aria-hidden className="font-semibold text-destructive">▲</span> Note inférieure à {PASS_MARK} (insuffisante)
+      </p>
     </div>
   );
 }
@@ -76,7 +82,7 @@ function StudentRow({ row, tied }: { row: ReportRow; tied: boolean }) {
 
       {row.grades.map((grade, index) => (
         <td key={index} className={NUMBER_CELL}>
-          {grade === null ? <Missing label="Note manquante" /> : formatGrade(grade)}
+          {grade === null ? <Missing label="Note manquante" /> : <GradeValue value={grade} />}
         </td>
       ))}
 

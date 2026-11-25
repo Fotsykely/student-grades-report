@@ -6,6 +6,7 @@ import { listGrades } from "@/lib/api-client/grades";
 import { listSubjects } from "@/lib/api-client/subjects";
 import { formatGrade } from "@/lib/format";
 import { deleteGradeAction } from "../actions";
+import { GradeValue } from "@/components/grade-value";
 
 // "?subjectId=2" filters the list. Anything else (absent, empty, not a number) means "all subjects".
 function parseSubjectFilter(raw: string | string[] | undefined): number | undefined {
@@ -77,7 +78,9 @@ export async function GradesList({ searchParams }: GradesListProps) {
                 <tr key={grade.id} className="border-b border-border last:border-b-0">
                   <th scope="row" className="px-4 py-2 font-medium">{grade.studentName}</th>
                   <td className="px-4 py-2">{grade.subjectName}</td>
-                  <td className="px-4 py-2 text-right font-semibold">{formatGrade(grade.value)}</td>
+                  <td className="px-4 py-2 text-right font-semibold">
+                    <GradeValue value={grade.value} />
+                  </td>
                   <td className="px-4 py-2">
                     <div className="flex justify-end gap-2">
                       <ButtonLink
