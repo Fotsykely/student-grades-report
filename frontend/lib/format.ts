@@ -7,6 +7,7 @@ export const MENTION_LABELS: Record<Mention, string> = {
   AssezBien: "Assez bien",
   Bien: "Bien",
   TresBien: "Très bien",
+  Excellent: "Excellent",
 };
 
 // A grade as typed: up to 2 decimals, none added ("12,5", "14").

@@ -30,7 +30,7 @@ export type GradeInput = {
   value: number | null;
 };
 
-export const MENTIONS = ["Ajourne", "Passable", "AssezBien", "Bien", "TresBien"] as const;
+export const MENTIONS = ["Ajourne", "Passable", "AssezBien", "Bien", "TresBien", "Excellent"] as const;
 export type Mention = (typeof MENTIONS)[number];
 
 // `grades` follows the order of `Report.subjects`; null means the grade is missing.

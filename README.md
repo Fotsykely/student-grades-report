@@ -39,7 +39,8 @@ Saisir une seconde note pour le même couple étudiant / matière renvoie une er
 | 10 à moins de 12 | Passable |
 | 12 à moins de 14 | Assez bien |
 | 14 à moins de 16 | Bien |
-| 16 et plus | Très bien |
+| 16 à moins de 18 | Très bien |
+| 18 et plus | Excellent |
 
 Une moyenne de 11,996 est arrondie à 12,00 : elle vaut donc « Assez bien ».
 

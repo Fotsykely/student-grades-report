@@ -11,6 +11,7 @@ public enum Mention
     AssezBien,
     Bien,
     TresBien,
+    Excellent,
 }
 
 public static class MentionRules
@@ -22,6 +23,7 @@ public static class MentionRules
         < 12m => Mention.Passable,
         < 14m => Mention.AssezBien,
         < 16m => Mention.Bien,
-        _ => Mention.TresBien,
+        < 18m => Mention.TresBien,
+        _ => Mention.Excellent,
     };
 }

@@ -24,7 +24,9 @@ public class ReportCalculatorTests
     [InlineData(14, Mention.Bien)]
     [InlineData(15.99, Mention.Bien)]
     [InlineData(16, Mention.TresBien)]
-    [InlineData(20, Mention.TresBien)]
+    [InlineData(17.99, Mention.TresBien)]
+    [InlineData(18, Mention.Excellent)]
+    [InlineData(20, Mention.Excellent)]
     public void Mention_follows_the_inclusive_lower_bounds(double average, Mention expected)
     {
         Assert.Equal(expected, MentionRules.For((decimal)average));
