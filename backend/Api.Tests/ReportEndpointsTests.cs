@@ -39,7 +39,11 @@ public class ReportEndpointsTests : IAsyncLifetime
             Assert.Null(r.Average);
             Assert.Null(r.Rank);
         });
-        Assert.All(report.ClassAverages, a => Assert.Null(a.Average));
+        Assert.All(report.ClassAverages, a =>
+        {
+            Assert.Null(a.Average);
+            Assert.Null(a.Median);
+        });
     }
 
     [Fact]
@@ -70,6 +74,8 @@ public class ReportEndpointsTests : IAsyncLifetime
 
         Assert.Equal(11m, report.ClassAverages[0].Average); // Mathématiques: (12 + 10) / 2
         Assert.Equal(2, report.ClassAverages[0].GradeCount);
+        Assert.Equal(11m, report.ClassAverages[0].Median);   // Mathématiques: 12 and 10
         Assert.Equal(8m, report.ClassAverages[3].Average);   // Gestion: only Hery
+        Assert.Equal(8m, report.ClassAverages[3].Median);
     }
 }

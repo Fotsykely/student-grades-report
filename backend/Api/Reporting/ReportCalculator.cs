@@ -72,7 +72,18 @@ public static class ReportCalculator
         var values = grades.Where(g => g.SubjectId == subject.Id).Select(g => g.Value).ToList();
 
         return values.Count == 0
-            ? new ClassAverageDto(subject.Id, null, 0)
-            : new ClassAverageDto(subject.Id, Math.Round(values.Average(), 2, MidpointRounding.AwayFromZero), values.Count);
+            ? new ClassAverageDto(subject.Id, null, null, 0)
+            : new ClassAverageDto(subject.Id, Math.Round(values.Average(), 2, MidpointRounding.AwayFromZero), Median(values), values.Count);
+    }
+
+    // Middle grade once sorted; with an even count, the mean of the two middle grades (rounded like the averages).
+    private static decimal Median(List<decimal> values)
+    {
+        var sorted = values.Order().ToList();
+        var middle = sorted.Count / 2;
+
+        return sorted.Count % 2 == 1
+            ? sorted[middle]
+            : Math.Round((sorted[middle - 1] + sorted[middle]) / 2, 2, MidpointRounding.AwayFromZero);
     }
 }

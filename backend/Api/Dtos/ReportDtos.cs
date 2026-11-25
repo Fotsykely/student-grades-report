@@ -19,5 +19,5 @@ public record ReportRowDto(
     int? Rank,
     bool IsComplete);
 
-// Average of the grades that exist for a subject; null when nobody has a grade yet.
-public record ClassAverageDto(int SubjectId, decimal? Average, int GradeCount);
+// Average and median of the grades that exist for a subject; both null when nobody has a grade yet.
+public record ClassAverageDto(int SubjectId, decimal? Average, decimal? Median, int GradeCount);
